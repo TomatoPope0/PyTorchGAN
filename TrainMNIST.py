@@ -6,10 +6,12 @@ from ModelGAN import Generator, Discriminator
 # Prevent recursive subprocess creation on Windows
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--num_threads", "-n", type=int, default=1)
+    parser.add_argument("--num-threads", "-n", type=int, default=1)
+    parser.add_argument("--epoch", "-e", type=int, default=10)
+    parser.add_argument("--batch", "-b", type=int, default=100)
     args = parser.parse_args()
 
-    batch_size = 100
+    batch_size = args.batch
     mnist_train = torchvision.datasets.MNIST(
         "../Datasets/MNIST_PyTorch/",
         train=True,
@@ -40,7 +42,7 @@ if __name__ == "__main__":
     )
 
     report_rate = 50
-    num_epochs = 10
+    num_epochs = args.epoch
     for epoch in range(num_epochs):
         d_loss = 0.0
         g_loss = 0.0
@@ -85,4 +87,4 @@ if __name__ == "__main__":
                 d_loss = 0.0
                 g_loss = 0.0
 
-    torch.save(G.state_dict(), "./Model/G.pt")
+    torch.save(G.state_dict(), "./Model/G-%d.pt" % num_epochs)
