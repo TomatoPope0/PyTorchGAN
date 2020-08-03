@@ -10,8 +10,10 @@ parser.add_argument("output", type=str)
 parser.add_argument("--num-images", "-n", type=int)
 args = parser.parse_args()
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 G = Generator()
-G.load_state_dict(torch.load(args.model))
+G.load_state_dict(torch.load(args.model, map_location=device))
 
 for i in range(args.num_images):
     z = torch.randn(100)
