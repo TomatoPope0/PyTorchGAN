@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from Maxout import Maxout
 
 class Generator(nn.Module):
     def __init__(self):
@@ -26,6 +27,15 @@ class Generator(nn.Module):
 class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
+        self.max1 = Maxout(784, 240, 5)
+        self.max2 = Maxout(240, 240, 5)
+        self.lin1 = nn.Sequential(
+            nn.Linear(240, 1),
+            nn.Sigmoid()
+        )
 
     def forward(self, x):
-        return x
+        m1 = self.max1(x)
+        m2 = self.max2(m1)
+        pred = self.lin1(m2)
+        return pred
