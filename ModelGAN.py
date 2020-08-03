@@ -27,10 +27,17 @@ class Generator(nn.Module):
 class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
-        self.max1 = Maxout(784, 240, 5)
-        self.max2 = Maxout(240, 240, 5)
+        self.max1 = nn.Sequential(
+            Maxout(784, 240, 5),
+            nn.Dropout(0.8)
+        )
+        self.max2 = nn.Sequential(
+            Maxout(240, 240, 5),
+            # nn.Dropout(0.8)
+        )
         self.lin1 = nn.Sequential(
             nn.Linear(240, 1),
+            # nn.Dropout(0.8),
             nn.Sigmoid()
         )
 
