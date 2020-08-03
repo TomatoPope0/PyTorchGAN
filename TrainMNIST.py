@@ -5,6 +5,8 @@ from ModelGAN import Generator, Discriminator
 
 # Prevent recursive subprocess creation on Windows
 if __name__ == "__main__":
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--num-threads", "-n", type=int, default=1)
     parser.add_argument("--epoch", "-e", type=int, default=10)
@@ -25,8 +27,8 @@ if __name__ == "__main__":
         num_workers=args.num_threads
     )
 
-    D = Discriminator()
-    G = Generator()
+    D = Discriminator().to(device)
+    G = Generator().to(device)
 
     criterion = torch.nn.BCELoss()
     # TODO: Add lr decay
@@ -49,10 +51,11 @@ if __name__ == "__main__":
         for i, data in enumerate(mnist_loader):
             # Train D
             ## Train on real data
+            data = data[0].to(device)
             optimizer_D.zero_grad()
 
             outputs = D(data[0].view(batch_size, 784))
-            loss = criterion(outputs, torch.ones(batch_size, 1))
+            loss = criterion(outputs, torch.ones(batch_size, 1, device=device))
             loss.backward()
             optimizer_D.step()
 
@@ -63,7 +66,7 @@ if __name__ == "__main__":
 
             z = torch.randn(batch_size, 100)
             outputs = D(G(z).detach())
-            loss = criterion(outputs, torch.zeros(batch_size, 1))
+            loss = criterion(outputs, torch.zeros(batch_size, 1, device=device))
             loss.backward()
             optimizer_D.step()
 
@@ -75,7 +78,7 @@ if __name__ == "__main__":
             # Can I use same z without resampling?
             z = torch.randn(batch_size, 100)
             outputs = D(G(z))
-            loss = criterion(outputs, torch.ones(batch_size, 1))
+            loss = criterion(outputs, torch.ones(batch_size, 1, device=device))
             loss.backward()
             optimizer_G.step()
 
